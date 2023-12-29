@@ -15,14 +15,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
+    env_file:
+      - ./backend/.env
     image: node:21.5.0-alpine3.18
     container_name: node-next-ql-app-backend
     restart: always
     working_dir: /app
     command: sh -c "npm install -g pnpm && pnpm install --frozen-lockfile && pnpm run start"
     environment:
-      NODE_ENV: development
-      PORT: 8080
       DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
     volumes:
       - ./backend:/app
