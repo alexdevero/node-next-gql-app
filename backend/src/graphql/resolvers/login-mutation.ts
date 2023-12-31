@@ -2,11 +2,11 @@ import { MutationResolvers } from '@/generated/graphql'
 
 export default {
   Mutation: <MutationResolvers>{
-    login: () => {
+    login: async () => {
       return {
         user: {
           id: '1',
-          name: 'bob',
+          username: 'bob',
           email: 'foo@email.com',
           createdAt: new Date().toISOString(),
         },

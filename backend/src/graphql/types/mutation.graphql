@@ -6,5 +6,5 @@ type AuthPayload {
 type Mutation {
   login(email: String!, password: String!): AuthPayload!
   logout: Boolean
-  signup(email: String!, password: String!): AuthPayload!
+  signUp(username: String!, email: String!, password: String!): AuthPayload!
 }

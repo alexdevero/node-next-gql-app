@@ -518,7 +518,7 @@
             "deprecationReason": null
           },
           {
-            "name": "signUp",
+            "name": "signup",
             "description": null,
             "args": [
               {
@@ -919,7 +919,7 @@
             "deprecationReason": null
           },
           {
-            "name": "username",
+            "name": "name",
             "description": null,
             "args": [],
             "type": {
