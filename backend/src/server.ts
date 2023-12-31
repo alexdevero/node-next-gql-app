@@ -14,10 +14,16 @@ import {
 import type { PostgreSqlDriver } from '@mikro-orm/postgresql'
 import { v4 } from 'uuid'
 import passport from 'passport'
+import { ApolloServer } from 'apollo-server-express'
+import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core'
+import { makeExecutableSchema } from '@graphql-tools/schema'
 
 import { authRouter } from './routes/auth'
 
 import { User } from './entities/user'
+
+import { typeDefs } from './graphql/type-defs'
+import { resolvers } from './graphql/resolvers'
 
 dotenv.config()
 
@@ -43,6 +49,19 @@ passport.deserializeUser(async (id: string, done) => {
 })
 
 export const app = express()
+
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+})
+
+const server = new ApolloServer({
+  schema,
+  context: ({ req, res }) => ({ em: DI.em, req, res }),
+  csrfPrevention: true,
+  cache: 'bounded',
+  plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
+})
 
 export const init = (async () => {
   DI.orm = await MikroORM.init<PostgreSqlDriver>()
@@ -71,7 +90,13 @@ export const init = (async () => {
 
   app.use('/auth', authRouter)
 
+  await server.start()
+
+  server.applyMiddleware({ app })
+
   DI.server = app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`)
+    console.log(
+      `Server started on port ${PORT}, GraphQL server at ${server.graphqlPath}`,
+    )
   })
 })()
