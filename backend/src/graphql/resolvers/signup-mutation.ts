@@ -1,15 +1,42 @@
+import { User } from './../../entities/user'
 import { MutationResolvers } from '@/generated/graphql'
+import validator from 'validator'
 
 export default {
   Mutation: <MutationResolvers>{
-    signUp: async () => {
+    signUp: async (_, input, { em }) => {
+      const email = validator.trim(input.email)
+      const password = validator.trim(input.password)
+      const username = validator.trim(input.username)
+
+      const emailValid = validator.isEmail(email)
+      const passwordValid = validator.isLength(password, { min: 6 })
+      const usernameValid = validator.isLength(username, { min: 3 })
+
+      if (!emailValid) {
+        throw new Error('Invalid email')
+      }
+
+      if (!passwordValid) {
+        throw new Error('Invalid password')
+      }
+
+      if (!usernameValid) {
+        throw new Error('Invalid username')
+      }
+
+      const user = em.create(User, {
+        email,
+        password,
+        username,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+
+      await em.persistAndFlush(user)
+
       return {
-        user: {
-          id: '1',
-          username: 'bob',
-          email: 'foo@email.com',
-          createdAt: new Date().toISOString(),
-        },
+        user: user,
         token: 'token',
       }
     },

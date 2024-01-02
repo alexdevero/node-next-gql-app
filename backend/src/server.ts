@@ -15,6 +15,7 @@ import {
 import type { PostgreSqlDriver } from '@mikro-orm/postgresql'
 import { v4 } from 'uuid'
 import passport from 'passport'
+import { Strategy as LocalStrategy } from 'passport-local'
 import { ApolloServer } from 'apollo-server-express'
 import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core'
 import { makeExecutableSchema } from '@graphql-tools/schema'
@@ -40,6 +41,19 @@ export const DI = {} as {
   em: EntityManager
   userRepository: EntityRepository<User>
 }
+
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    const user = await DI.userRepository.findOne({ username })
+    if (!user) {
+      return done(null, false, { message: 'Incorrect username.' })
+    }
+    if (!user.verifyPassword(password)) {
+      return done(null, false, { message: 'Incorrect password.' })
+    }
+    return done(null, user)
+  }),
+)
 
 passport.serializeUser((user, done) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

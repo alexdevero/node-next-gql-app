@@ -1,5 +1,6 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { BeforeCreate, Entity, PrimaryKey, Property } from '@mikro-orm/core'
 import { v4 } from 'uuid'
+import bcrypt from 'bcrypt'
 
 @Entity()
 export class User {
@@ -20,4 +21,13 @@ export class User {
 
   @Property({ type: 'text', unique: true })
   email!: string
+
+  @BeforeCreate()
+  public async hashPassword(): Promise<void> {
+    this.password = await bcrypt.hash(this.password, 12)
+  }
+
+  public verifyPassword(password: string): boolean {
+    return bcrypt.compareSync(password, this.password)
+  }
 }
