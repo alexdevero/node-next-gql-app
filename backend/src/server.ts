@@ -5,6 +5,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import dotenv from 'dotenv'
+import path from 'path'
 import {
   EntityManager,
   EntityRepository,
@@ -25,7 +26,9 @@ import { User } from './entities/user'
 import { typeDefs } from './graphql/type-defs'
 import { resolvers } from './graphql/resolvers'
 
-dotenv.config()
+dotenv.config({
+  path: path.join(__dirname, '../.env'),
+})
 
 const PORT = process.env.PORT || 5000
 const FE_PORT = process.env.FE_PORT || 3000
