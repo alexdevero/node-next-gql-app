@@ -4,18 +4,23 @@ import { User } from './../../entities/user'
 
 export default {
   Query: <QueryResolvers>{
-    me: async (_, __, ctx, info) => {
-      const { em } = ctx
+    me: async (_, __, ctx) => {
+      const {
+        em,
+        req: { user },
+      } = ctx
 
-      const currentUser = await em.findOne(User, { id: '1' })
-      console.log(info)
-
-      return {
-        id: '1',
-        username: 'bob',
-        email: 'test@email.com',
-        createdAt: new Date().toISOString(),
+      if (!user) {
+        throw new Error('Not authenticated')
       }
+
+      const currentUser = await em.findOne(User, { id: (user as { id: string }).id })
+
+      if (!currentUser) {
+        throw new Error('Not authenticated')
+      }
+
+      return currentUser
     },
   },
 }

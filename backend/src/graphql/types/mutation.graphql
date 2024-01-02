@@ -1,5 +1,5 @@
 type AuthPayload {
-  token: String!
+  # token: String # todo: add token
   user: User!
 }
 

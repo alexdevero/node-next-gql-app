@@ -1,6 +1,8 @@
-import { User } from './../../entities/user'
-import { MutationResolvers } from '@/generated/graphql'
 import validator from 'validator'
+
+import { MutationResolvers } from '@/generated/graphql'
+
+import { User } from './../../entities/user'
 
 export default {
   Mutation: <MutationResolvers>{
@@ -36,8 +38,8 @@ export default {
       await em.persistAndFlush(user)
 
       return {
-        user: user,
-        token: 'token',
+        user,
+        // token: 'token',
       }
     },
   },
