@@ -1,8 +1,10 @@
 import validator from 'validator'
+import jwt from 'jsonwebtoken'
 
 import { User } from './../../entities/user'
 
 import { MutationResolvers } from '@/generated/graphql'
+import { JwtToken } from '@/types/jwt-token'
 
 export default {
   Mutation: <MutationResolvers>{
@@ -24,9 +26,20 @@ export default {
         throw new Error('Invalid email or password')
       }
 
+      const jwtTokenInfo: JwtToken = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        iat: Math.floor(Date.now() / 1000),
+        // exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+      }
+      const token = jwt.sign(jwtTokenInfo, process.env.JWT_SECRET as string, {
+        expiresIn: '24h',
+      })
+
       return {
         user,
-        // token: 'token',
+        token,
       }
     },
   },

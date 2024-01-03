@@ -1,10 +1,15 @@
-type AuthPayload {
-  # token: String # todo: add token
+type LoginPayload {
+  token: String
+  user: User!
+}
+
+type SignUpPayload {
   user: User!
 }
 
 type Mutation {
-  login(email: String!, password: String!): AuthPayload!
+  login(email: String!, password: String!): LoginPayload!
   logout: Boolean
-  signUp(username: String!, email: String!, password: String!): AuthPayload!
+  signUp(username: String!, email: String!, password: String!): SignUpPayload!
+  updateUser(username: String, email: String, password: String): User!
 }

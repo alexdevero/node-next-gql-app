@@ -83,16 +83,18 @@ export type Scalars = {
   Void: { input: any; output: any; }
 };
 
-export type AuthPayload = {
-  __typename?: 'AuthPayload';
+export type LoginPayload = {
+  __typename?: 'LoginPayload';
+  token?: Maybe<Scalars['String']['output']>;
   user: User;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  login: AuthPayload;
+  login: LoginPayload;
   logout?: Maybe<Scalars['Boolean']['output']>;
-  signUp: AuthPayload;
+  signUp: SignUpPayload;
+  updateUser: User;
 };
 
 
@@ -108,18 +110,35 @@ export type MutationSignUpArgs = {
   username: Scalars['String']['input'];
 };
 
+
+export type MutationUpdateUserArgs = {
+  email?: InputMaybe<Scalars['String']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
 };
 
+export type SignUpPayload = {
+  __typename?: 'SignUpPayload';
+  user: User;
+};
+
 export type User = {
   __typename?: 'User';
-  createdAt: Scalars['Date']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   username: Scalars['String']['output'];
 };
+
+export enum ValidationError {
+  ServerError = 'SERVER_ERROR',
+  UnAuthorized = 'UN_AUTHORIZED',
+  ValidationFailed = 'VALIDATION_FAILED'
+}
 
 
 
@@ -193,7 +212,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   AccountNumber: ResolverTypeWrapper<Scalars['AccountNumber']['output']>;
-  AuthPayload: ResolverTypeWrapper<AuthPayload>;
   BigInt: ResolverTypeWrapper<Scalars['BigInt']['output']>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Byte: ResolverTypeWrapper<Scalars['Byte']['output']>;
@@ -230,6 +248,7 @@ export type ResolversTypes = {
   LocalEndTime: ResolverTypeWrapper<Scalars['LocalEndTime']['output']>;
   LocalTime: ResolverTypeWrapper<Scalars['LocalTime']['output']>;
   Locale: ResolverTypeWrapper<Scalars['Locale']['output']>;
+  LoginPayload: ResolverTypeWrapper<LoginPayload>;
   Long: ResolverTypeWrapper<Scalars['Long']['output']>;
   Longitude: ResolverTypeWrapper<Scalars['Longitude']['output']>;
   MAC: ResolverTypeWrapper<Scalars['MAC']['output']>;
@@ -253,6 +272,7 @@ export type ResolversTypes = {
   RoutingNumber: ResolverTypeWrapper<Scalars['RoutingNumber']['output']>;
   SafeInt: ResolverTypeWrapper<Scalars['SafeInt']['output']>;
   SemVer: ResolverTypeWrapper<Scalars['SemVer']['output']>;
+  SignUpPayload: ResolverTypeWrapper<SignUpPayload>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Time: ResolverTypeWrapper<Scalars['Time']['output']>;
   TimeZone: ResolverTypeWrapper<Scalars['TimeZone']['output']>;
@@ -264,13 +284,13 @@ export type ResolversTypes = {
   UnsignedInt: ResolverTypeWrapper<Scalars['UnsignedInt']['output']>;
   User: ResolverTypeWrapper<User>;
   UtcOffset: ResolverTypeWrapper<Scalars['UtcOffset']['output']>;
+  ValidationError: ValidationError;
   Void: ResolverTypeWrapper<Scalars['Void']['output']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   AccountNumber: Scalars['AccountNumber']['output'];
-  AuthPayload: AuthPayload;
   BigInt: Scalars['BigInt']['output'];
   Boolean: Scalars['Boolean']['output'];
   Byte: Scalars['Byte']['output'];
@@ -307,6 +327,7 @@ export type ResolversParentTypes = {
   LocalEndTime: Scalars['LocalEndTime']['output'];
   LocalTime: Scalars['LocalTime']['output'];
   Locale: Scalars['Locale']['output'];
+  LoginPayload: LoginPayload;
   Long: Scalars['Long']['output'];
   Longitude: Scalars['Longitude']['output'];
   MAC: Scalars['MAC']['output'];
@@ -330,6 +351,7 @@ export type ResolversParentTypes = {
   RoutingNumber: Scalars['RoutingNumber']['output'];
   SafeInt: Scalars['SafeInt']['output'];
   SemVer: Scalars['SemVer']['output'];
+  SignUpPayload: SignUpPayload;
   String: Scalars['String']['output'];
   Time: Scalars['Time']['output'];
   TimeZone: Scalars['TimeZone']['output'];
@@ -347,11 +369,6 @@ export type ResolversParentTypes = {
 export interface AccountNumberScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['AccountNumber'], any> {
   name: 'AccountNumber';
 }
-
-export type AuthPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AuthPayload'] = ResolversParentTypes['AuthPayload']> = {
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
 
 export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
   name: 'BigInt';
@@ -489,6 +506,12 @@ export interface LocaleScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
   name: 'Locale';
 }
 
+export type LoginPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoginPayload'] = ResolversParentTypes['LoginPayload']> = {
+  token?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface LongScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Long'], any> {
   name: 'Long';
 }
@@ -502,9 +525,10 @@ export interface MacScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes[
 }
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  login?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
+  login?: Resolver<ResolversTypes['LoginPayload'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  signUp?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password' | 'username'>>;
+  signUp?: Resolver<ResolversTypes['SignUpPayload'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password' | 'username'>>;
+  updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, Partial<MutationUpdateUserArgs>>;
 };
 
 export interface NegativeFloatScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['NegativeFloat'], any> {
@@ -583,6 +607,11 @@ export interface SemVerScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
   name: 'SemVer';
 }
 
+export type SignUpPayloadResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SignUpPayload'] = ResolversParentTypes['SignUpPayload']> = {
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface TimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Time'], any> {
   name: 'Time';
 }
@@ -616,7 +645,6 @@ export interface UnsignedIntScalarConfig extends GraphQLScalarTypeConfig<Resolve
 }
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
-  createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -633,7 +661,6 @@ export interface VoidScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type Resolvers<ContextType = Context> = {
   AccountNumber?: GraphQLScalarType;
-  AuthPayload?: AuthPayloadResolvers<ContextType>;
   BigInt?: GraphQLScalarType;
   Byte?: GraphQLScalarType;
   CountryCode?: GraphQLScalarType;
@@ -668,6 +695,7 @@ export type Resolvers<ContextType = Context> = {
   LocalEndTime?: GraphQLScalarType;
   LocalTime?: GraphQLScalarType;
   Locale?: GraphQLScalarType;
+  LoginPayload?: LoginPayloadResolvers<ContextType>;
   Long?: GraphQLScalarType;
   Longitude?: GraphQLScalarType;
   MAC?: GraphQLScalarType;
@@ -691,6 +719,7 @@ export type Resolvers<ContextType = Context> = {
   RoutingNumber?: GraphQLScalarType;
   SafeInt?: GraphQLScalarType;
   SemVer?: GraphQLScalarType;
+  SignUpPayload?: SignUpPayloadResolvers<ContextType>;
   Time?: GraphQLScalarType;
   TimeZone?: GraphQLScalarType;
   Timestamp?: GraphQLScalarType;

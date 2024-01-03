@@ -1,0 +1,5 @@
+enum ValidationError {
+  UN_AUTHORIZED
+  VALIDATION_FAILED
+  SERVER_ERROR
+}
