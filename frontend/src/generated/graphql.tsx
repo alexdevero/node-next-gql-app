@@ -83,17 +83,18 @@ export type Scalars = {
   Void: { input: any; output: any; }
 };
 
-export type AuthPayload = {
-  __typename?: 'AuthPayload';
-  token: Scalars['String']['output'];
+export type LoginPayload = {
+  __typename?: 'LoginPayload';
+  token?: Maybe<Scalars['String']['output']>;
   user: User;
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  login: AuthPayload;
+  login: LoginPayload;
   logout?: Maybe<Scalars['Boolean']['output']>;
-  signUp: AuthPayload;
+  signUp: SignUpPayload;
+  updateUser: User;
 };
 
 
@@ -109,18 +110,35 @@ export type MutationSignUpArgs = {
   username: Scalars['String']['input'];
 };
 
+
+export type MutationUpdateUserArgs = {
+  email?: InputMaybe<Scalars['String']['input']>;
+  password?: InputMaybe<Scalars['String']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
 };
 
+export type SignUpPayload = {
+  __typename?: 'SignUpPayload';
+  user: User;
+};
+
 export type User = {
   __typename?: 'User';
-  createdAt: Scalars['Date']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   username: Scalars['String']['output'];
 };
+
+export enum ValidationError {
+  ServerError = 'SERVER_ERROR',
+  UnAuthorized = 'UN_AUTHORIZED',
+  ValidationFailed = 'VALIDATION_FAILED'
+}
 
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
@@ -128,7 +146,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthPayload', token: string, user: { __typename?: 'User', id: string, email: string, username: string } } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginPayload', token?: string | null, user: { __typename?: 'User', id: string, email: string, username: string } } };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -142,7 +160,7 @@ export type SignUpMutationVariables = Exact<{
 }>;
 
 
-export type SignUpMutation = { __typename?: 'Mutation', signUp: { __typename?: 'AuthPayload', token: string, user: { __typename?: 'User', id: string, email: string, username: string } } };
+export type SignUpMutation = { __typename?: 'Mutation', signUp: { __typename?: 'SignUpPayload', user: { __typename?: 'User', id: string, email: string, username: string } } };
 
 
 export const LoginDocument = gql`
@@ -228,7 +246,6 @@ export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const SignUpDocument = gql`
     mutation SignUp($username: String!, $email: String!, $password: String!) {
   signUp(username: $username, email: $email, password: $password) {
-    token
     user {
       id
       email
