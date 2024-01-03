@@ -5,7 +5,7 @@
   "printWidth": 88,
   "tabWidth": 2,
   "useTabs": false,
-  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
   "importOrder": ["server-only", "<THIRD_PARTY_MODULES>", "^[a-zA-Z]", "^@/", "^\\."],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
